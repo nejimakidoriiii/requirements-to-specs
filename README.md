@@ -12,12 +12,14 @@
 
 ## パイプライン
 
+`output_dir` は入力に応じて[出力先の規則](skills/requirements-to-specs/SKILL.md#出力先)で決める。
+
 ```text
-1. 正規化   要求を原子化し REQ-ID を振る        → specs/requirements.md
-2. 分類     REQ-ID ごとに3形式の要否を判定する    → specs/classification.yaml
+1. 正規化   要求を原子化し REQ-ID を振る        → <output_dir>/requirements.md
+2. 分類     REQ-ID ごとに3形式の要否を判定する    → <output_dir>/classification.yaml
 3. 生成     分類表で true の形式だけ生成し、
-            quint / alloy の検証を通す           → specs/{gherkin,quint,alloy}/
-4. 整合性   trace matrix で矛盾を検出する        → specs/trace.md
+            quint / alloy の検証を通す           → <output_dir>/{gherkin,quint,alloy}/
+4. 整合性   trace matrix で矛盾を検出する        → <output_dir>/trace.md
 ```
 
 分類表が生成の単一の真実の情報源。要求文から各形式へ直接生成すると意味がずれるため、生成は必ず分類表を経由する。
@@ -34,7 +36,7 @@ Quint と Alloy の実行検証は Docker コンテナに閉じる。ホスト�
 | quint | 0.33.0 | typecheck / run / verify |
 | Alloy | 6.2.0 | commands / exec |
 
-`scripts/verify.sh` がイメージのビルドと実行を代行する（初回はビルドに数分）:
+`scripts/verify.sh` がイメージのビルドと実行を代行する（初回はビルドに数分）。以下は要求文書を入力とした例:
 
 ```sh
 scripts/verify.sh quint typecheck specs/quint/order.qnt
@@ -68,7 +70,7 @@ scripts/verify.sh alloy exec -f  specs/alloy/order.als
 requirements-to-specs を使って docs/requirement.md から仕様を生成して
 ```
 
-対象の要求文書は既存の場所で読み取り、生成物は `specs/` に出力する。
+対象の要求文書は既存の場所で読み取る。GitHub Issue も入力にでき、例えば Issue #123 の成果物は `specs/123/` に出力する。通常の要求文書の出力先は従来どおり `specs/`。
 
 ## リポジトリ構成
 

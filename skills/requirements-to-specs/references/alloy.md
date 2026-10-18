@@ -1,4 +1,4 @@
-# Alloy — `specs/alloy/*.als`
+# Alloy — `<output_dir>/alloy/*.als`
 
 Alloy は「どの構造が存在してよいか」を書く。エンティティ（sig）と関係（field）の組み合わせのうち、存在してよいものを制約する。静的な構造制約が対象。状態遷移は Quint の領分であり、Alloy 6 の `var` や時制演算子（`always` / `eventually`）は、要求が静的構造では表せないときの最終手段とする。
 
@@ -82,8 +82,8 @@ check REQ002_NoOrphanOrder for 3
 生成した .als は、commands（構文とコマンドの確認）→ exec（全コマンド実行）の順に通す。処理系はホストにインストールせず、`scripts/verify.sh` が検証コンテナ（Alloy 6.2.0 同梱、Docker が必要）で実行する。ワークスペースのルートから:
 
 ```sh
-scripts/verify.sh alloy commands specs/alloy/order.als
-scripts/verify.sh alloy exec -f specs/alloy/order.als
+scripts/verify.sh alloy commands "$output_dir/alloy/order.als"
+scripts/verify.sh alloy exec -f "$output_dir/alloy/order.als"
 ```
 
 - `exec` の結果は実行時のカレントディレクトリ（通常はワークスペースのルート）に `<ファイル名>/` ディレクトリ（receipt.json と解）として出力される。`-f` は既存ディレクトリの上書きで、2回目以降の実行に必要

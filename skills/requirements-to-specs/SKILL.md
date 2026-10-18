@@ -14,9 +14,28 @@ disable-model-invocation: true
 
 REQ-ID を通貨として、3形式が同じ要求を検査していることを保証する。状態名・エンティティ名は requirements.md の語彙から取り、3形式で同一の綴りを使う。
 
+## 出力先
+
+パイプライン開始前に、入力に応じて出力先 `output_dir` を確定する。パスはワークスペースのルートからの相対パスとする:
+
+- GitHub Issue を要求仕様とする場合: `specs/<Issue番号>`。番号は `#` を付けない数字とし、Issue #123 なら `specs/123`。番号を特定できない場合はユーザーに確認してから進む
+- それ以外の場合: `specs`
+
+すべての成果物を同じ `output_dir` 配下に作成する。以降の手順と参照文書の `<output_dir>` は、この確定したパスに置き換える。出力先が既に存在するときは、その配下の構造に従う:
+
+```text
+<output_dir>/
+  requirements.md       # REQ-ID 付き要求一覧（ステップ1）
+  classification.yaml   # 分類表（ステップ2。生成の単一の真実の情報源）
+  trace.md              # trace matrix（ステップ4）
+  gherkin/*.feature
+  quint/*.qnt
+  alloy/*.als
+```
+
 ## パイプライン
 
-### 1. 正規化 — `specs/requirements.md`
+### 1. 正規化 — `<output_dir>/requirements.md`
 
 要求文書を読み、要求を原子化する:
 
@@ -26,7 +45,7 @@ REQ-ID を通貨として、3形式が同じ要求を検査していることを
 
 完了: 元文書のすべての要求が requirements.md で (a) REQ-ID 付き、(b) 動作か制約を1つだけ含む文、(c) 曖昧語なし、を満たす。未解決の要求があれば生成対象から外し、パイプラインの最後にユーザーへ報告する。
 
-### 2. 分類 — `specs/classification.yaml`
+### 2. 分類 — `<output_dir>/classification.yaml`
 
 各 REQ-ID について3形式の要否を判定し、分類表に書く:
 
@@ -54,40 +73,26 @@ REQ-001:
 
 分類表で true になった形式だけを生成する。生成の入力は requirements.md の該当 REQ-ID と classification.yaml に限る。生成前にその形式の規約ファイルを読む:
 
-- Gherkin → `references/gherkin.md` → `specs/gherkin/*.feature`
-- Quint → `references/quint.md` → `specs/quint/*.qnt`
-- Alloy → `references/alloy.md` → `specs/alloy/*.als`
+- Gherkin → `references/gherkin.md` → `<output_dir>/gherkin/*.feature`
+- Quint → `references/quint.md` → `<output_dir>/quint/*.qnt`
+- Alloy → `references/alloy.md` → `<output_dir>/alloy/*.als`
 
 同じドメインの REQ-ID は1ファイルにまとめる（1要求1ファイルにしない）。
 
-Quint と Alloy の生成物は `scripts/verify.sh`（Docker が必要）で検証を通す。検査が通らない生成物は次のステップに進む前に直す。Gherkin は実行処理系がステップ定義（実装）に依存するため検証対象外とし、規約ファイルの様式に従う:
+Quint と Alloy の生成物は `scripts/verify.sh`（Docker が必要）で検証を通す。検査が通らない生成物は次のステップに進む前に直す。Gherkin は実行処理系がステップ定義（実装）に依存するため検証対象外とし、規約ファイルの様式に従う。検証コマンドはシェル変数 `output_dir` に確定した出力先を設定してから実行する:
 
 ```sh
-scripts/verify.sh quint typecheck specs/quint/order.qnt
-scripts/verify.sh quint run     specs/quint/order.qnt --invariant=<定義名> --max-steps=5
-scripts/verify.sh quint verify  specs/quint/order.qnt --invariant=<定義名> --max-steps=1
-scripts/verify.sh alloy commands specs/alloy/order.als
-scripts/verify.sh alloy exec -f  specs/alloy/order.als
+scripts/verify.sh quint typecheck "$output_dir/quint/order.qnt"
+scripts/verify.sh quint run     "$output_dir/quint/order.qnt" --invariant=<定義名> --max-steps=5
+scripts/verify.sh quint verify  "$output_dir/quint/order.qnt" --invariant=<定義名> --max-steps=1
+scripts/verify.sh alloy commands "$output_dir/alloy/order.als"
+scripts/verify.sh alloy exec -f  "$output_dir/alloy/order.als"
 ```
 
 完了: 分類表の true セルすべてに対応する定義が生成物にあり、REQ-ID が各形式の規約ファイルが定める位置に埋め込まれている。Quint の生成物は typecheck / run / verify を、Alloy の生成物は commands / exec を通っている。
 
-### 4. 整合性確認 — `specs/trace.md`
+### 4. 整合性確認 — `<output_dir>/trace.md`
 
 `references/consistency.md` を読み、trace matrix を作成して同一 REQ-ID の生成物を突き合わせる。矛盾を見つけたら生成物を黙って直して隠さない。矛盾は要求側の曖昧さの兆候なので、trace.md に記録しユーザーに報告する。
 
 完了: 分類表に true がある REQ-ID × 形式のすべての組について、consistency.md の確認項目を判定し、結果を trace matrix として trace.md に残している。矛盾と未解決の要求をすべて報告済み。
-
-## 出力構造
-
-```text
-specs/
-  requirements.md       # REQ-ID 付き要求一覧（ステップ1）
-  classification.yaml   # 分類表（ステップ2。生成の単一の真実の情報源）
-  trace.md              # trace matrix（ステップ4）
-  gherkin/*.feature
-  quint/*.qnt
-  alloy/*.als
-```
-
-`specs/` が既に存在するときはその構造に従い、requirements.md / classification.yaml / trace.md の3点セットは `specs/` 直下に置く。

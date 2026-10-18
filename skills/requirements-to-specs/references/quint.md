@@ -1,4 +1,4 @@
-# Quint — `specs/quint/*.qnt`
+# Quint — `<output_dir>/quint/*.qnt`
 
 Quint は「どの状態からどの状態へ遷移できるか」と「すべての到達可能状態で常に守る条件（invariant）」を書く。システム内部の状態遷移と安全条件が対象。
 
@@ -85,9 +85,9 @@ Gherkin の Given は状態変数の値、When は action 名、Then は action 
 生成した .qnt は、typecheck（型検査）→ run（シミュレーション）→ verify（形式検証）の順に通す。処理系はホストにインストールせず、`scripts/verify.sh` が検証コンテナ（quint 0.33.0 / Java 21 同梱、Docker が必要）で実行する。ワークスペースのルートから:
 
 ```sh
-scripts/verify.sh quint typecheck specs/quint/order.qnt
-scripts/verify.sh quint run     specs/quint/order.qnt --invariant=noUnpaidShipment --max-steps=5
-scripts/verify.sh quint verify  specs/quint/order.qnt --invariant=noUnpaidShipment --max-steps=1
+scripts/verify.sh quint typecheck "$output_dir/quint/order.qnt"
+scripts/verify.sh quint run     "$output_dir/quint/order.qnt" --invariant=noUnpaidShipment --max-steps=5
+scripts/verify.sh quint verify  "$output_dir/quint/order.qnt" --invariant=noUnpaidShipment --max-steps=1
 ```
 
 - 初回実行はイメージのビルドに数分かかる

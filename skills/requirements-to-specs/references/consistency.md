@@ -1,10 +1,10 @@
-# 整合性確認 — `specs/trace.md`
+# 整合性確認 — `<output_dir>/trace.md`
 
 同一 REQ-ID の生成物を突き合わせ、3形式が同じ要求を検査していることを確認する。
 
 ## trace matrix
 
-`specs/trace.md` に表を作る。分類表で true の形式のセルに、その REQ-ID を担う定義の名前を書く。false の形式は `—` を書く:
+`<output_dir>/trace.md` に表を作る。分類表で true の形式のセルに、その REQ-ID を担う定義の名前を書く。false の形式は `—` を書く:
 
 ```markdown
 | REQ-ID | Gherkin | Quint | Alloy | 判定 |

@@ -1,4 +1,4 @@
-# Gherkin — `specs/gherkin/*.feature`
+# Gherkin — `<output_dir>/gherkin/*.feature`
 
 Gherkin は「利用者から何が観察できるか」を書く。利用者や外部システムが入力を与えて応答を受け取れる振る舞いが対象。外部から観察できない内部状態（テーブルのカラム、内部フラグの値そのもの）は書かない。
 
