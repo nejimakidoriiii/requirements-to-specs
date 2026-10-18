@@ -15,8 +15,13 @@ RUN curl -sL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
  && rm /tmp/node.tar.xz
 ENV PATH="/opt/node/bin:${PATH}"
 
-# Java 21 — quint verify が使う Apalache が要求する（class file 65.0）
-RUN curl -sL https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jre/hotspot/normal/eclipse -o /tmp/jre.tgz \
+# Temurin JRE 21.0.12.1+1 — quint verify が使う Apalache が要求する（class file 65.0）。
+# バージョンは URL と SHA256 で固定する。更新時は Adoptium API
+# （/v3/assets/latest/21/hotshot?...）の package.link と package.checksum で差し替える。
+ARG TEMURIN_JRE_URL=https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jre_x64_linux_hotspot_21.0.12.1_1.tar.gz
+ARG TEMURIN_JRE_SHA256=2413149700df0f7d440500a84a8f764c535f21e5a5e87d38328b64eec2c5b500
+RUN curl -sL "$TEMURIN_JRE_URL" -o /tmp/jre.tgz \
+ && echo "$TEMURIN_JRE_SHA256  /tmp/jre.tgz" | sha256sum -c - \
  && mkdir -p /opt/java \
  && tar -xzf /tmp/jre.tgz -C /opt/java --strip-components=1 \
  && rm /tmp/jre.tgz

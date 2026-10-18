@@ -30,7 +30,7 @@ Quint と Alloy の実行検証は Docker コンテナに閉じる。ホスト�
 |------|-----------|------|
 | Ubuntu | 24.04（glibc 2.39） | ネイティブ依存の土台 |
 | Node | 22.23.3 | quint の実行 |
-| Temurin JRE | 21 | Apalache（quint verify） |
+| Temurin JRE | 21.0.12.1+1（SHA256 検証付き） | Apalache（quint verify） |
 | quint | 0.33.0 | typecheck / run / verify |
 | Alloy | 6.2.0 | commands / exec |
 
